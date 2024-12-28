@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design Net Cafe</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+<body>
+    <div class="chat-container">
+        <header class="chat-header">
+            <h1>Tạo bản vẽ thiết kế phòng Net</h1>
+        </header>
+        <main class="chat-main">
+            <div class="chat-output" id="chatOutput">
+                <p class="bot-message">Tôi có thể giúp gì cho bạn?</p>
+            </div>
+            <div id="detectedObjects" class="checkbox-container">
+            </div>
+            <form id="chatForm" class="chat-input">
+                <!-- Thay input file bằng input text -->
+                <input 
+                    type="text" 
+                    id="userMessage" 
+                    name="message" 
+                    placeholder="Gửi tin nhắn" 
+                    required
+                >
+                <button type="submit" id="sendMessageButton">Gửi</button>
+            </form>
+        </main>
+    </div>
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+</body>
+</html>
