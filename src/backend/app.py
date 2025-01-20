@@ -212,7 +212,13 @@ def draw_layout(session_id):
     # except Exception as e:
     #     print(f"Error adding dimension references: {e}")
     #     raise
+    total_room_area = room_width * room_height
+    used_area = sum(w * h for x, y, w, h in table_tensor) + sum(w * h for x, y, w, h in chair_tensor) 
+    efficiency = (used_area / total_room_area) * 100
+    print(f"Tỷ lệ sử dụng diện tích: {efficiency}%")
 
+    #add comment
+    
     # Thêm nhãn cho trục tọa độ
     try:
         ax.set_xlabel("Chiều dài (cm)", fontsize=12)
@@ -240,7 +246,10 @@ def draw_layout(session_id):
     except Exception as e:
         print(f"Error starting delete thread: {e}")
         raise
-
+    
+    
+    
+    
     # Trả về URL
     return f"/static/designs/design_{session_id}.png"
 

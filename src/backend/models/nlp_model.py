@@ -4,16 +4,16 @@ from underthesea import pos_tag
 import pandas as pd
 import os
 
-# Đặt thư mục tùy chỉnh cho dữ liệu NLTK (trong venv)
-nltk_data_dir = os.path.join(os.getcwd(), "venv", "nltk_data")
-if not os.path.exists(nltk_data_dir):
-    os.makedirs(nltk_data_dir)
+# # Đặt thư mục tùy chỉnh cho dữ liệu NLTK (trong venv)
+# nltk_data_dir = os.path.join(os.getcwd(), "venv", "nltk_data")
+# if not os.path.exists(nltk_data_dir):
+#     os.makedirs(nltk_data_dir)
 
-# Cấu hình NLTK để sử dụng thư mục này
-nltk.data.path.append(nltk_data_dir)
-nltk.download('punkt', download_dir=nltk_data_dir)
-nltk.download('punkt_tab', download_dir=nltk_data_dir)
-nltk.data.path = [nltk_data_dir]
+# # Cấu hình NLTK để sử dụng thư mục này
+# nltk.data.path.append(nltk_data_dir)
+# nltk.download('punkt', download_dir=nltk_data_dir)
+# nltk.download('punkt_tab', download_dir=nltk_data_dir)
+# nltk.data.path = [nltk_data_dir]
 
 
 class NLPModel:
@@ -33,9 +33,9 @@ class NLPModel:
         """
         Chuẩn hóa văn bản: chuyển chữ thường, loại bỏ ký tự không cần thiết.
         """
+        # text = self.resolve_coreference(text)
         text = text.lower().strip()
         text = ''.join([char for char in text if char.isalnum() or char.isspace() or char == 'x'])
-        print(f"chuẩn hóa văn bản:",text)
         return text
 
     def tokenize_text(self, text):
@@ -50,7 +50,10 @@ class NLPModel:
         """
         Nhận diện các thực thể từ văn bản đầu vào.
         """
+        # Sử dụng Underthesea để gán nhãn từ loại
         words = pos_tag(text)
+        print(f"Underthesea POS Tagging: {words}")  # Hiển thị kết quả gán nhãn từ loại
+        
         detected_entities = []
         current_entity = None
 
@@ -58,53 +61,40 @@ class NLPModel:
             if word in self.furniture_keywords:
                 if current_entity:
                     detected_entities.append(current_entity)
+                    print(f"Entity Detected: {current_entity}")  # Theo dõi từng thực thể phát hiện
                 current_entity = {"type": word, "value": ""}
             elif any(char.isdigit() for char in word) or "x" in word or "cm" in word or "m" in word:
                 if current_entity:
                     current_entity["value"] += f"{word} "
         if current_entity:
             detected_entities.append(current_entity)
-        print(detected_entities)
+            print(f"Final Entity: {current_entity}")  # Hiển thị thực thể cuối cùng
+        
+        print(f"All Detected Entities: {detected_entities}")  # Theo dõi danh sách thực thể đầy đủ
         return pd.DataFrame(detected_entities)
 
-    def resolve_coreference(self, text):
-        """
-        Xử lý tham chiếu đồng đại, thay thế đại từ bằng thực thể gần nhất.
-        """
-        entities = {}
-        sentences = sent_tokenize(text)
-        resolved_text = []
 
-        for sentence in sentences:
-            words = word_tokenize(sentence)
-            for i, word in enumerate(words):
-                if word.lower() in ["nó", "cái này", "chúng", "là", "các"]:
-                    if entities:
-                        words[i] = list(entities.keys())[-1]
-                elif word.lower() in self.furniture_keywords:
-                    entities[word] = sentence
-            resolved_text.append(" ".join(words))
+    # def resolve_coreference(self, text):
+    #     """
+    #     Xử lý tham chiếu đồng đại, thay thế đại từ bằng thực thể gần nhất.
+    #     """
+    #     entities = {}
+    #     sentences = sent_tokenize(text)
+    #     resolved_text = []
 
-        return " ".join(resolved_text)
+    #     for sentence in sentences:
+    #         words = word_tokenize(sentence)
+    #         for i, word in enumerate(words):
+    #             if word.lower() in ["nó", "cái", "này", "chúng", "là", "các", "có", "kích", "thước"]:
+    #                 if entities:
+    #                     words[i] = list(entities.keys())[-1]
+    #             elif word.lower() in self.furniture_keywords:
+    #                 entities[word] = sentence
+    #         resolved_text.append(" ".join(words))
 
-    def process_text(self, user_input):
-        """
-        Xử lý dữ liệu từ người dùng, trả về kết quả đã nhận diện và tham chiếu đồng đại.
-        """
-        # Tiền xử lý văn bản
-        clean_text = self.preprocess_text(user_input)
+    #     return " ".join(resolved_text)
 
-        # Nhận diện thực thể
-        entity_df = self.extract_entities(clean_text)
 
-        # Xử lý tham chiếu đồng đại
-        resolved_text = self.resolve_coreference(user_input)
-
-        return {
-            "cleaned_text": clean_text,
-            "entities": entity_df.to_dict(orient="records"),
-            "resolved_text": resolved_text
-        }
     
     def extract_drawing_parameters(self, text):
         """
